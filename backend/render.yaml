@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# render.yaml  —  Render.com Infrastructure-as-Code deployment blueprint
+# ─────────────────────────────────────────────────────────────────────────────
+# Drop this file at the root of your repository (or in the backend/ folder if
+# that is your Render root directory).
+#
+# Render will detect it automatically and provision:
+#   • A managed PostgreSQL database  (task-manager-db)
+#   • A Python web service           (task-manager-api)
+#
+# Docs: https://render.com/docs/blueprint-spec
+# ─────────────────────────────────────────────────────────────────────────────
+
+databases:
+  - name: task-manager-db
+    databaseName: taskdb
+    user: taskuser
+    plan: free               # upgrade to "starter" or "standard" for production SLAs
+
+services:
+  - type: web
+    name: task-manager-api
+    runtime: python
+    plan: free               # upgrade for always-on / more RAM
+
+    # Path within the repo where the source lives
+    rootDir: backend         # adjust if your repo root IS the backend folder
+
+    # Render installs deps then starts the server using these two commands
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port 10000
+
+    # ── Environment variables ─────────────────────────────────────────────
+    envVars:
+      # DATABASE_URL is automatically injected by Render when you link the
+      # database above.  The fromDatabase block handles this connection.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: task-manager-db
+          property: connectionString
+
+      - key: LOG_LEVEL
+        value: INFO
+
+      # Set this to your frontend domain(s) in production:
+      #   value: https://myapp.com,https://staging.myapp.com
+      - key: ALLOWED_ORIGINS
+        value: "*"
+
+      # Render requires the server to bind to port 10000
+      - key: PORT
+        value: "10000"
+
+    # ── Health check ──────────────────────────────────────────────────────
+    # Render probes this path after deploy to confirm the service is healthy.
+    healthCheckPath: /

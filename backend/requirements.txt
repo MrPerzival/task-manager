@@ -1,0 +1,23 @@
+# ── Core framework ────────────────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0        # includes httptools + uvloop for better perf
+
+# ── Database ──────────────────────────────────────────────────────────────────
+sqlalchemy==2.0.30
+psycopg2-binary==2.9.9           # PostgreSQL driver (binary wheel — no libpq needed)
+alembic==1.13.1                  # Schema migrations (upgrade / downgrade)
+
+# ── Data validation ───────────────────────────────────────────────────────────
+pydantic==2.7.1
+
+# ── Environment / config ──────────────────────────────────────────────────────
+python-dotenv==1.0.1
+
+# ── Extras ────────────────────────────────────────────────────────────────────
+python-multipart==0.0.9
+
+# ── Testing (not installed in production Docker image) ────────────────────────
+# pip install pytest pytest-asyncio httpx
+# pytest==8.2.0
+# pytest-asyncio==0.23.6
+# httpx==0.27.0
